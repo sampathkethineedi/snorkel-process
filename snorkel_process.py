@@ -87,16 +87,19 @@ def apply_GenMod(L_train):
     print(gen_model.learned_lf_stats())
 
 
-def runSnorkelProcess():
+def runSnorkelProcess(restart=True):
     """
     Main process flow
     :return:
     """
-    doc_parse('../gold_labels.tsv')
-    candExtractor, cSubClass = def_cand_extractor()
-    extract_candidates(candExtractor, cSubClass)
+    if restart is True:
+        doc_parse('../gold_labels.tsv')
+        candExtractor, cSubClass = def_cand_extractor()
+        extract_candidates(candExtractor, cSubClass)
+    else:
+        def_cand_extractor()
     l_train = apply_LF()
     apply_GenMod(l_train)
 
 
-runSnorkelProcess()
+runSnorkelProcess(False)
