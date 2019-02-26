@@ -18,11 +18,19 @@ def doc_parse(path):
     """
     Loads TSV file and parses to Snorkel Contexts
     """
-    doc_preprocessor = TSVDocPreprocessor(path, encoding=u'utf-8', max_docs=2500)
-    corpus_parser = CorpusParser()
-    corpus_parser.apply(doc_preprocessor)
-    print("Documents:", session.query(Document).count())
-    print("Sentences:", session.query(Sentence).count())
+
+    try:
+        doc_preprocessor = TSVDocPreprocessor(path, encoding=u'utf-8', max_docs=2500)
+        try:
+            corpus_parser = CorpusParser()
+            corpus_parser.apply(doc_preprocessor)
+            print("Documents:", session.query(Document).count())
+            print("Sentences:", session.query(Sentence).count())
+        except Exception:
+            print('Error in Corpus Parser')
+
+    except Exception:
+        print('Error loading TSV file')
 
 
 def def_cand_extractor():
