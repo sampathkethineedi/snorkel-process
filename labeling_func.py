@@ -1,6 +1,6 @@
 import pandas as pd
 
-data = pd.read_csv('id_labels.tsv',delimiter='\t')
+data = pd.read_csv('../id_labels.tsv',delimiter='\t')
 data.columns = ['id','label']
 positive_words = {'good','great','best','amazing','excellent','awesome','incredible','beautiful'}
 negative_words = {'bad','worst','boring','repeated','waste','refund','mediocre'}

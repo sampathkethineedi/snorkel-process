@@ -92,11 +92,11 @@ def runSnorkelProcess():
     Main process flow
     :return:
     """
-    doc_parse('gold_labels.tsv')
+    doc_parse('../gold_labels.tsv')
     candExtractor, cSubClass = def_cand_extractor()
     extract_candidates(candExtractor, cSubClass)
     l_train = apply_LF()
     apply_GenMod(l_train)
 
 
-# runSnorkelProcess()
+runSnorkelProcess()
