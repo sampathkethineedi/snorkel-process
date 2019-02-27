@@ -17,8 +17,9 @@ session = SnorkelSession()
 def doc_parse(path):
     """
     Loads TSV file and parses to Snorkel Contexts
+    :param path: Path to TSV file
+    :return: None
     """
-
     try:
         doc_preprocessor = TSVDocPreprocessor(path, encoding=u'utf-8', max_docs=2500)
         try:
@@ -50,6 +51,9 @@ def extract_candidates(candExtractor, cSubClass):
     """
     Extracts Snorkel candidates
     Splits data to train, dev and test sets
+    :param candExtractor: Candidate Extractor Schema
+    :param cSubClass: Candidate sub class schema
+    :return: None
     """
     docs = session.query(Document).order_by(Document.name).all()
     train_sents = set()
@@ -86,7 +90,8 @@ def apply_LF():
 def apply_GenMod(L_train):
     """
     Applies generative model on label matrix
-    :return:
+    :param L_train: Label matrix
+    :return: None
     """
     gen_model = GenerativeModel()
     gen_model.train(L_train, epochs=100, decay=0.95, step_size=0.1 / L_train.shape[0], reg_param=1e-6)
@@ -98,10 +103,11 @@ def apply_GenMod(L_train):
 def runSnorkelProcess(restart=True):
     """
     Main process flow
-    :return:
+    :param restart: Flag to start from beginning
+    :return: None
     """
     if restart is True:
-        doc_parse('../gold_labels.tsv')
+        doc_parse('./cnbc_doc.tsv')
         candExtractor, cSubClass = def_cand_extractor()
         extract_candidates(candExtractor, cSubClass)
     else:
@@ -110,4 +116,4 @@ def runSnorkelProcess(restart=True):
     apply_GenMod(l_train)
 
 
-runSnorkelProcess(False)
+runSnorkelProcess()
