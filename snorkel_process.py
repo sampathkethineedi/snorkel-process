@@ -100,14 +100,15 @@ def apply_GenMod(L_train):
     print(gen_model.learned_lf_stats())
 
 
-def runSnorkelProcess(restart=True):
+def runSnorkelProcess(path, restart):
     """
     Main process flow
+    :param path: Path to TSV file
     :param restart: Flag to start from beginning
     :return: None
     """
     if restart is True:
-        doc_parse('./cnbc_doc.tsv')
+        doc_parse(path)
         candExtractor, cSubClass = def_cand_extractor()
         extract_candidates(candExtractor, cSubClass)
     else:
@@ -116,4 +117,13 @@ def runSnorkelProcess(restart=True):
     apply_GenMod(l_train)
 
 
-runSnorkelProcess()
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='Run Snorkel process')
+    parser.add_argument('-p', '--path', dest='path', required=True, help='Path to TSV file')
+    parser.add_argument('-r', '--restart', dest='restart', action='store_true',
+                        help='flag to restart process from beginning')
+    parser.set_defaults(restart=False)
+    args = parser.parse_args()
+
+    runSnorkelProcess(args.path, args.restart)
