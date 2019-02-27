@@ -8,7 +8,6 @@ from snorkel.learning import GenerativeModel
 
 import numpy as np
 from context import *
-import labeling_func
 from inspect import getmembers, isfunction
 
 session = SnorkelSession()
@@ -72,11 +71,13 @@ def extract_candidates(candExtractor, cSubClass):
         print("Number of candidates:", session.query(cSubClass).filter(cSubClass.split == i).count())
 
 
-def apply_LF():
+def apply_LF(lf_file):
     """
     Load labeling functions and applies on the candidates extracted in train set
+    :param lf_file: labeling functions python file
     :return: L_train
     """
+    labeling_func = __import__(lf_file)
     LF_list = [o[1] for o in getmembers(labeling_func) if isfunction(o[1])]
     labeler = LabelAnnotator(lfs=LF_list)
     np.random.seed(1701)
@@ -98,11 +99,12 @@ def apply_GenMod(L_train):
     print(gen_model.learned_lf_stats())
 
 
-def runSnorkelProcess(path, restart):
+def runSnorkelProcess(path, restart, lf):
     """
     Main process flow
     :param path: Path to TSV file
     :param restart: Flag to start from beginning
+    :param lf: LF python file
     :return: None
     """
     if restart is True:
@@ -111,7 +113,7 @@ def runSnorkelProcess(path, restart):
         extract_candidates(candExtractor, cSubClass)
     else:
         def_cand_extractor()
-    l_train = apply_LF()
+    l_train = apply_LF(lf)
     apply_GenMod(l_train)
 
 
@@ -119,9 +121,10 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Run Snorkel process')
     parser.add_argument('-p', '--path', dest='path', required=True, help='Path to TSV file')
+    parser.add_argument('-lf', '--label_func', dest='lf', required=True, help='LF python file')
     parser.add_argument('-r', '--restart', dest='restart', action='store_true',
                         help='flag to restart process from beginning')
     parser.set_defaults(restart=False)
     args = parser.parse_args()
 
-    runSnorkelProcess(args.path, args.restart)
+    runSnorkelProcess(args.path, args.restart, args.lf)
