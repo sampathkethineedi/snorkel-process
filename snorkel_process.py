@@ -5,6 +5,7 @@ from snorkel.candidates import CandidateExtractor, Ngrams
 from snorkel.matchers import Matcher
 from snorkel.annotations import LabelAnnotator
 from snorkel.learning import GenerativeModel
+from snorkel.annotations import save_marginals
 
 import numpy as np
 from context import *
@@ -37,7 +38,7 @@ def def_cand_extractor():
     Make necessary changes to cand subclass, span, matcher and cand extractor
     :return: candExtractor, cSubClass
     """
-    Text = candidate_subclass('Text', ['text'])
+    Text = candidate_subclass('Text', ['text'], values=['Positive', 'Negative', False])
     sent_span = SentCandidate()
     defaultMatcher = Matcher()
     cand_extractor = CandidateExtractor(Text, [sent_span], [defaultMatcher])
@@ -82,6 +83,7 @@ def apply_LF(lf_file):
     labeler = LabelAnnotator(lfs=LF_list)
     np.random.seed(1701)
     L_train = labeler.apply(split=0)
+    L_train.todense()
     print(L_train.lf_stats(session))
     return L_train
 
@@ -93,10 +95,13 @@ def apply_GenMod(L_train):
     :return: None
     """
     gen_model = GenerativeModel()
-    gen_model.train(L_train, epochs=100, decay=0.95, step_size=0.1 / L_train.shape[0], reg_param=1e-6)
+    # gen_model.train(L_train, epochs=100, decay=0.95, step_size=0.1 / L_train.shape[0], reg_param=1e-6)
+    gen_model.train(L_train, cardinality=3)
     print(gen_model.weights.lf_accuracy)
-    gen_model.marginals(L_train)
+    train_marginals = gen_model.marginals(L_train)
+    # assert np.all(train_marginals.sum(axis=1) - np.ones(3) < 1e-10)
     print(gen_model.learned_lf_stats())
+    save_marginals(session, L_train, train_marginals)
 
 
 def runSnorkelProcess(path, restart, lf):
