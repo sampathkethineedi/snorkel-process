@@ -70,6 +70,8 @@ def extract_candidates(candExtractor, cSubClass):
     for i, sents in enumerate([train_sents, dev_sents, test_sents]):
         candExtractor.apply(sents, split=i)
         print("Number of candidates:", session.query(cSubClass).filter(cSubClass.split == i).count())
+        cands = session.query(cSubClass).filter(cSubClass.split == 0).all()
+        print(cands[0])
 
 
 def apply_LF(lf_file):
@@ -99,7 +101,6 @@ def apply_GenMod(L_train):
     gen_model.train(L_train, cardinality=3)
     print(gen_model.weights.lf_accuracy)
     train_marginals = gen_model.marginals(L_train)
-    # assert np.all(train_marginals.sum(axis=1) - np.ones(3) < 1e-10)
     print(gen_model.learned_lf_stats())
     save_marginals(session, L_train, train_marginals)
 
