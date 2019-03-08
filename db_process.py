@@ -12,8 +12,8 @@ class DataBase(object):
         self.session = SnorkelSession()
         self.name = name
         self.version = version
-        if os.path.isfile(self.name + '.db'):
-            os.remove(self.name + '.db')
+        if os.path.isfile('DB/'+self.name + '_output.db'):
+            os.remove('DB/'+self.name + '_output.db')
         self.conn = sqlite3.connect('DB/'+self.name + '_output.db')
 
     def create_tables(self):
@@ -78,12 +78,12 @@ class DataBase(object):
         c.close()
 
 
-def get_sentence_data():
+def get_sentence_data(name):
     """
     Obtain sentence data from DB
     :return: sentence_data
     """
-    conn_snorkel = sqlite3.connect('snorkel.db')
+    conn_snorkel = sqlite3.connect('DB/'+name+'_snorkel.db')
     c = conn_snorkel.cursor()
     c.execute('SELECT id, document_id,position,text '
               'FROM sentence')
@@ -92,12 +92,12 @@ def get_sentence_data():
     return sentence_data
 
 
-def get_label_data():
+def get_label_data(name):
     """
     Perform product and obtain mariginals data
     :return: label_data
     """
-    conn_snorkel = sqlite3.connect('snorkel.db')
+    conn_snorkel = sqlite3.connect('DB/'+name+'_snorkel.db')
     c = conn_snorkel.cursor()
     c.execute('SELECT document_id,sentence.id,value,probability '
               'FROM text,sentence,marginal,span '
@@ -117,7 +117,7 @@ def db_process(name):
     """
     test_db = DataBase(name)
     test_db.create_tables()
-    sent_data = get_sentence_data()
-    lab_data = get_label_data()
+    sent_data = get_sentence_data(name)
+    lab_data = get_label_data(name)
     test_db.push_sentence_table(sent_data)
     test_db.push_label_table(lab_data)
