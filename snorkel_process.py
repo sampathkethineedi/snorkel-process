@@ -1,18 +1,3 @@
-from snorkel import SnorkelSession
-from snorkel.parser import TSVDocPreprocessor,CorpusParser
-from snorkel.models import Document, Sentence, candidate_subclass
-from snorkel.candidates import CandidateExtractor, Ngrams
-from snorkel.matchers import Matcher
-from snorkel.annotations import LabelAnnotator
-from snorkel.learning import GenerativeModel
-from snorkel.annotations import save_marginals
-
-import numpy as np
-from context import *
-from inspect import getmembers, isfunction
-
-session = SnorkelSession()
-
 
 def doc_parse(path):
     """
@@ -71,7 +56,6 @@ def extract_candidates(candExtractor, cSubClass):
         candExtractor.apply(sents, split=i)
         print("Number of candidates:", session.query(cSubClass).filter(cSubClass.split == i).count())
         cands = session.query(cSubClass).filter(cSubClass.split == 0).all()
-        print(cands[0])
 
 
 def apply_LF(lf_file):
@@ -125,12 +109,30 @@ def runSnorkelProcess(path, restart, lf):
 
 if __name__ == "__main__":
     import argparse
+    import os
     parser = argparse.ArgumentParser(description='Run Snorkel process')
+    parser.add_argument('-n', '--name', dest='name', required=True, help='Name of the process')
     parser.add_argument('-p', '--path', dest='path', required=True, help='Path to TSV file')
     parser.add_argument('-lf', '--label_func', dest='lf', required=True, help='LF python file')
     parser.add_argument('-r', '--restart', dest='restart', action='store_true',
                         help='flag to restart process from beginning')
     parser.set_defaults(restart=False)
     args = parser.parse_args()
+    os.environ["SNORKELDB"] = "sqlite:///" + os.getcwd() + os.sep + "cnbc_test.db"
 
+
+    import numpy as np
+    from context import *
+    from inspect import getmembers, isfunction
+
+    from snorkel import SnorkelSession
+    from snorkel.parser import TSVDocPreprocessor, CorpusParser
+    from snorkel.models import Document, Sentence, candidate_subclass
+    from snorkel.candidates import CandidateExtractor
+    from snorkel.matchers import Matcher
+    from snorkel.annotations import LabelAnnotator
+    from snorkel.learning import GenerativeModel
+    from snorkel.annotations import save_marginals
+
+    session = SnorkelSession()
     runSnorkelProcess(args.path, args.restart, args.lf)
