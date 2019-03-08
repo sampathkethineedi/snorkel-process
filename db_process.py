@@ -12,9 +12,9 @@ class DataBase(object):
         self.session = SnorkelSession()
         self.name = name
         self.version = version
-        if os.path.isfile('DB/'+self.name + '_output.db'):
-            os.remove('DB/'+self.name + '_output.db')
-        self.conn = sqlite3.connect('DB/'+self.name + '_output.db')
+        if os.path.isfile(self.name + '/output.db'):
+            os.remove(self.name + '/output.db')
+        self.conn = sqlite3.connect(self.name + '/output.db')
 
     def create_tables(self):
         """
@@ -83,7 +83,7 @@ def get_sentence_data(name):
     Obtain sentence data from DB
     :return: sentence_data
     """
-    conn_snorkel = sqlite3.connect('DB/'+name+'_snorkel.db')
+    conn_snorkel = sqlite3.connect(name + '/snorkel.db')
     c = conn_snorkel.cursor()
     c.execute('SELECT id, document_id,position,text '
               'FROM sentence')
@@ -97,7 +97,7 @@ def get_label_data(name):
     Perform product and obtain mariginals data
     :return: label_data
     """
-    conn_snorkel = sqlite3.connect('DB/'+name+'_snorkel.db')
+    conn_snorkel = sqlite3.connect(name+'/snorkel.db')
     c = conn_snorkel.cursor()
     c.execute('SELECT document_id,sentence.id,value,probability '
               'FROM text,sentence,marginal,span '

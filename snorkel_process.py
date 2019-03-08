@@ -1,3 +1,5 @@
+report = []
+
 
 def doc_parse(path):
     """
@@ -117,8 +119,11 @@ if __name__ == "__main__":
                         help='flag to restart process from beginning')
     parser.set_defaults(restart=False)
     args = parser.parse_args()
-    os.environ["SNORKELDB"] = "sqlite:///" + os.getcwd() + os.sep + os.path.join("DB/", args.name+"_snorkel.db")
 
+    if not os.path.exists(args.name):
+        os.makedirs(args.name)
+
+    os.environ["SNORKELDB"] = "sqlite:///" + os.getcwd() + os.sep + os.path.join(args.name+"/snorkel.db")
 
     import numpy as np
     from db_process import db_process
@@ -137,3 +142,4 @@ if __name__ == "__main__":
     session = SnorkelSession()
     runSnorkelProcess(args.path, args.restart, args.lf)
     db_process(args.name)
+    print(report)
