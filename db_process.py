@@ -14,7 +14,7 @@ class DataBase(object):
         self.version = version
         if os.path.isfile(self.name + '.db'):
             os.remove(self.name + '.db')
-        self.conn = sqlite3.connect(self.name + '.db')
+        self.conn = sqlite3.connect('DB/'+self.name + '_output.db')
 
     def create_tables(self):
         """
@@ -109,13 +109,13 @@ def get_label_data():
     return label_data
 
 
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description='Run DB process')
-    parser.add_argument('-n', '--name', dest='name', required=True, help='DB name')
-    args = parser.parse_args()
-
-    test_db = DataBase(args.name)
+def db_process(name):
+    """
+    Main DB process
+    :param name: name of the DB
+    :return:
+    """
+    test_db = DataBase(name)
     test_db.create_tables()
     sent_data = get_sentence_data()
     lab_data = get_label_data()

@@ -55,7 +55,6 @@ def extract_candidates(candExtractor, cSubClass):
     for i, sents in enumerate([train_sents, dev_sents, test_sents]):
         candExtractor.apply(sents, split=i)
         print("Number of candidates:", session.query(cSubClass).filter(cSubClass.split == i).count())
-        cands = session.query(cSubClass).filter(cSubClass.split == 0).all()
 
 
 def apply_LF(lf_file):
@@ -83,7 +82,7 @@ def apply_GenMod(L_train):
     gen_model = GenerativeModel()
     # gen_model.train(L_train, epochs=100, decay=0.95, step_size=0.1 / L_train.shape[0], reg_param=1e-6)
     gen_model.train(L_train, cardinality=3)
-    print(gen_model.weights.lf_accuracy)
+    # print(gen_model.weights.lf_accuracy)
     train_marginals = gen_model.marginals(L_train)
     print(gen_model.learned_lf_stats())
     save_marginals(session, L_train, train_marginals)
@@ -118,10 +117,11 @@ if __name__ == "__main__":
                         help='flag to restart process from beginning')
     parser.set_defaults(restart=False)
     args = parser.parse_args()
-    os.environ["SNORKELDB"] = "sqlite:///" + os.getcwd() + os.sep + "cnbc_test.db"
+    os.environ["SNORKELDB"] = "sqlite:///" + os.getcwd() + os.sep + os.path.join("DB/", args.name+"_snorkel.db")
 
 
     import numpy as np
+    from db_process import db_process
     from context import *
     from inspect import getmembers, isfunction
 
@@ -136,3 +136,4 @@ if __name__ == "__main__":
 
     session = SnorkelSession()
     runSnorkelProcess(args.path, args.restart, args.lf)
+    db_process(args.name)
